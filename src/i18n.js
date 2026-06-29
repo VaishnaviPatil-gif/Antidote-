@@ -48,6 +48,9 @@ export const T = {
       next: "Next", done: "Done", min: "min", sinceBite: "since bite",
       noData: "Nothing yet", cached: "cached", lastKnown: "last known",
       assistedNote: "AI-assisted, not a diagnosis",
+      startOver: "Start over",
+      startOverConfirm: "Clear this emergency and start over?",
+      startOverYes: "Clear",
     },
 
     // ── Home / emergency landing ──
@@ -229,6 +232,9 @@ export const T = {
       next: "आगे", done: "हो गया", min: "मिनट", sinceBite: "काटे जाने के बाद",
       noData: "अभी कुछ नहीं", cached: "कैश किया", lastKnown: "अंतिम ज्ञात",
       assistedNote: "एआई-सहायित, निदान नहीं",
+      startOver: "नया शुरू",
+      startOverConfirm: "इस आपातकाल को मिटाकर नया शुरू करें?",
+      startOverYes: "मिटाएँ",
     },
 
     home: {
@@ -402,6 +408,9 @@ export const T = {
       next: "తదుపరి", done: "పూర్తయింది", min: "నిమి", sinceBite: "కాటు తర్వాత",
       noData: "ఇంకా ఏమీ లేదు", cached: "కాష్ చేయబడింది", lastKnown: "చివరిగా తెలిసిన",
       assistedNote: "AI-సహాయం, రోగనిర్ధారణ కాదు",
+      startOver: "మళ్లీ ప్రారంభం",
+      startOverConfirm: "ఈ అత్యవసరాన్ని తొలగించి మళ్లీ ప్రారంభించాలా?",
+      startOverYes: "తొలగించు",
     },
 
     home: {
