@@ -130,6 +130,22 @@ export function EmergencyProvider({ children }) {
     [patch]
   );
 
+  /**
+   * Clear the whole emergency and return to a clean slate — for a new victim or
+   * a repeat demo. Wipes biteTime, symptomLog, severity, location, snake, etc.
+   * and the persisted copy, but KEEPS the chosen language (a UI preference, not
+   * part of the emergency). Without this the first bite's stale state would leak
+   * into the next use, since everything is mirrored to localStorage.
+   */
+  const resetEmergency = useCallback(() => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      /* storage unavailable — in-memory reset below still applies */
+    }
+    setState((s) => ({ ...DEFAULT_STATE, language: s.language }));
+  }, []);
+
   const value = useMemo(
     () => ({
       ...state,
@@ -141,6 +157,7 @@ export function EmergencyProvider({ children }) {
       appendSymptom,
       setEmergencyContact,
       setRecommendedHospital,
+      resetEmergency,
     }),
     [
       state,
@@ -152,6 +169,7 @@ export function EmergencyProvider({ children }) {
       appendSymptom,
       setEmergencyContact,
       setRecommendedHospital,
+      resetEmergency,
     ]
   );
 
