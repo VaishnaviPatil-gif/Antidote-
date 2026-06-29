@@ -16,3 +16,4 @@ backend/.env
 .vscode/
 .DS_Store
 *.log
+.claude/
