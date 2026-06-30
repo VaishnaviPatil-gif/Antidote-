@@ -202,6 +202,52 @@ export const T = {
       banner: "You're offline — emergency features still work",
       cachedStock: "Hospital stock shows last cached values.",
     },
+
+    // ── Resume saved session (§P1) ──
+    resume: {
+      title: "Emergency in progress",
+      body: "Saved on this device. Pick up where you left off.",
+      resumeBtn: "Resume",
+      discardBtn: "Start over",
+      lastStep: "Last step",
+      sinceBite: "since bite",
+      steps: {
+        "/first-aid": "First aid",
+        "/snake": "Snake photo",
+        "/tracker": "Symptom tracker",
+        "/routing": "Find antivenom",
+        "/sos": "SOS alert",
+        "/hospital": "Hospital view",
+      },
+    },
+
+    // ── Live GPS navigation (§P2) ──
+    navigation: {
+      bannerTitle: "Emergency Navigation Active",
+      to: "To",
+      speed: "Speed",
+      distanceLeft: "Distance left",
+      arrival: "Arrival",
+      eta: "ETA",
+      coords: "Your coordinates",
+      accuracy: "Accuracy",
+      kmh: "km/h",
+      recalculating: "Route updated",
+      acquiring: "Getting GPS signal…",
+      lastKnownNote: "Showing last known location",
+      end: "End navigation",
+      arrivedTitle: "You have arrived",
+      arrivedBody: "Walk in and show this screen to the staff.",
+      permTitle: "Location permission needed",
+      permBody:
+        "Allow location to navigate. Open Settings → Apps → Antidote+ → Permissions → Location → Allow.",
+      permRetry: "Enable & retry",
+      enableLocation: "Enable Location",
+      locationRequired: "Location access required",
+      gpsTitle: "Searching for GPS…",
+      gpsBody: "Move into the open if you can. Retrying automatically.",
+      retry: "Retry",
+    },
   },
 
   hi: {
@@ -378,6 +424,52 @@ export const T = {
       banner: "आप ऑफ़लाइन हैं — आपातकालीन सुविधाएँ फिर भी काम करती हैं",
       cachedStock: "अस्पताल स्टॉक अंतिम कैश मान दिखा रहा है।",
     },
+
+    // ── Resume saved session (§P1) ──
+    resume: {
+      title: "आपातकाल जारी है",
+      body: "इस डिवाइस पर सहेजा गया। जहाँ छोड़ा था वहीं से जारी रखें।",
+      resumeBtn: "जारी रखें",
+      discardBtn: "नया शुरू",
+      lastStep: "अंतिम चरण",
+      sinceBite: "काटे जाने के बाद",
+      steps: {
+        "/first-aid": "प्राथमिक उपचार",
+        "/snake": "साँप की फोटो",
+        "/tracker": "लक्षण ट्रैकर",
+        "/routing": "एंटीवेनम खोजें",
+        "/sos": "एसओएस अलर्ट",
+        "/hospital": "अस्पताल दृश्य",
+      },
+    },
+
+    // ── Live GPS navigation (§P2) ──
+    navigation: {
+      bannerTitle: "आपातकालीन नेविगेशन सक्रिय",
+      to: "गंतव्य",
+      speed: "गति",
+      distanceLeft: "शेष दूरी",
+      arrival: "पहुँचना",
+      eta: "अनुमानित समय",
+      coords: "आपके निर्देशांक",
+      accuracy: "सटीकता",
+      kmh: "किमी/घं",
+      recalculating: "मार्ग अपडेट हुआ",
+      acquiring: "जीपीएस सिग्नल मिल रहा…",
+      lastKnownNote: "अंतिम ज्ञात स्थान दिखा रहे",
+      end: "नेविगेशन समाप्त करें",
+      arrivedTitle: "आप पहुँच गए",
+      arrivedBody: "अंदर जाएँ और यह स्क्रीन स्टाफ को दिखाएँ।",
+      permTitle: "स्थान अनुमति आवश्यक",
+      permBody:
+        "नेविगेट करने के लिए स्थान चालू करें। सेटिंग्स → ऐप्स → Antidote+ → अनुमतियाँ → स्थान → अनुमति दें।",
+      permRetry: "चालू करें व पुनः प्रयास",
+      enableLocation: "स्थान चालू करें",
+      locationRequired: "स्थान पहुँच आवश्यक",
+      gpsTitle: "जीपीएस खोजा जा रहा…",
+      gpsBody: "हो सके तो खुले में आएँ। अपने-आप पुनः प्रयास हो रहा।",
+      retry: "पुनः प्रयास",
+    },
   },
 
   te: {
@@ -553,6 +645,52 @@ export const T = {
     offline: {
       banner: "మీరు ఆఫ్‌లైన్‌లో ఉన్నారు — అత్యవసర ఫీచర్లు ఇంకా పనిచేస్తాయి",
       cachedStock: "ఆసుపత్రి స్టాక్ చివరి కాష్ విలువలను చూపుతోంది.",
+    },
+
+    // ── Resume saved session (§P1) ──
+    resume: {
+      title: "అత్యవసరం కొనసాగుతోంది",
+      body: "ఈ పరికరంలో సేవ్ చేయబడింది. ఆపిన చోటి నుండి కొనసాగించండి.",
+      resumeBtn: "కొనసాగించు",
+      discardBtn: "మళ్లీ ప్రారంభం",
+      lastStep: "చివరి దశ",
+      sinceBite: "కాటు తర్వాత",
+      steps: {
+        "/first-aid": "ప్రథమ చికిత్స",
+        "/snake": "పాము ఫోటో",
+        "/tracker": "లక్షణాల ట్రాకర్",
+        "/routing": "యాంటీవెనమ్ కనుగొనండి",
+        "/sos": "SOS హెచ్చరిక",
+        "/hospital": "ఆసుపత్రి వీక్షణ",
+      },
+    },
+
+    // ── Live GPS navigation (§P2) ──
+    navigation: {
+      bannerTitle: "అత్యవసర నావిగేషన్ యాక్టివ్",
+      to: "గమ్యం",
+      speed: "వేగం",
+      distanceLeft: "మిగిలిన దూరం",
+      arrival: "చేరే సమయం",
+      eta: "అంచనా సమయం",
+      coords: "మీ కోఆర్డినేట్లు",
+      accuracy: "ఖచ్చితత్వం",
+      kmh: "కిమీ/గం",
+      recalculating: "మార్గం నవీకరించబడింది",
+      acquiring: "GPS సిగ్నల్ పొందుతోంది…",
+      lastKnownNote: "చివరిగా తెలిసిన ప్రాంతం చూపుతోంది",
+      end: "నావిగేషన్ ముగించు",
+      arrivedTitle: "మీరు చేరుకున్నారు",
+      arrivedBody: "లోపలికి వెళ్లి ఈ స్క్రీన్‌ను సిబ్బందికి చూపండి.",
+      permTitle: "లొకేషన్ అనుమతి అవసరం",
+      permBody:
+        "నావిగేట్ చేయడానికి లొకేషన్ ఆన్ చేయండి. సెట్టింగ్స్ → యాప్స్ → Antidote+ → అనుమతులు → లొకేషన్ → అనుమతించు.",
+      permRetry: "ఆన్ చేసి మళ్లీ ప్రయత్నించు",
+      enableLocation: "లొకేషన్ ఆన్ చేయండి",
+      locationRequired: "లొకేషన్ యాక్సెస్ అవసరం",
+      gpsTitle: "GPS వెతుకుతోంది…",
+      gpsBody: "వీలైతే ఆరుబయటకు రండి. ఆటోమేటిక్‌గా మళ్లీ ప్రయత్నిస్తోంది.",
+      retry: "మళ్లీ ప్రయత్నించు",
     },
   },
 };

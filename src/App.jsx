@@ -32,7 +32,7 @@ const Routing = lazy(() => import("./pages/Routing.jsx"));
  *   Home → First Aid → (optional) Snake → Tracker → Routing → SOS → Hospital
  */
 export default function App() {
-  const { language } = useEmergency();
+  const { language, setLastRoute } = useEmergency();
   const { pathname } = useLocation();
 
   // Keep <html lang> in sync for correct font shaping / a11y.
@@ -44,6 +44,13 @@ export default function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+
+  // Record the deepest emergency screen for resume-after-restart (§P1). We skip
+  // Home ("/") so returning to the landing never erases where the victim was —
+  // the resume banner can still send them back to the real last step.
+  useEffect(() => {
+    if (pathname !== "/") setLastRoute(pathname);
+  }, [pathname, setLastRoute]);
 
   return (
     <Suspense fallback={<RouteFallback />}>

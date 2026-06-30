@@ -7,6 +7,7 @@ import {
 import { C } from "../theme.js";
 import { tFor } from "../i18n.js";
 import { useEmergency } from "../context/EmergencyContext.jsx";
+import ResumeBanner from "../components/ResumeBanner.jsx";
 
 /**
  * Home / Emergency landing (§2.2).
@@ -130,6 +131,9 @@ export default function Home() {
         }
         .ap-hero { animation: calmPulse 2.6s ease-out infinite; }
       `}</style>
+
+      {/* ── Resume an in-progress emergency after an app restart (§P1) ── */}
+      <ResumeBanner />
 
       {/* ── Hero action ─────────────────────────────────────────── */}
       <button
