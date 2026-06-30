@@ -1,10 +1,16 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback, useEffect, lazy, Suspense } from "react";
 import {
   MapPin, Navigation, Phone, Share2, AlertTriangle, CheckCircle2,
   Clock, Activity, ShieldCheck, X, Droplets,
   Crosshair, Building2, Siren, Timer, RadioTower,
 } from "lucide-react";
 import { useEmergency } from "../context/EmergencyContext.jsx";
+import NavigationOverlay from "../components/NavigationOverlay.jsx";
+
+// The interactive Leaflet map is lazy-loaded so the (heavy) mapping bundle only
+// downloads when the Routing screen is actually shown — keeping the rest of the
+// app lean. It replaces the former abstract SVG dot visualisation.
+const LiveRouteMap = lazy(() => import("../components/LiveRouteMap.jsx"));
 
 /**
  * Antidote+ — Hospital Stock + Routing Flow (demo MVP)
@@ -325,9 +331,11 @@ export default function AntidotePlusRouting() {
           </div>
         </div>
 
-        {/* ── Map ────────────────────────────────────────────────── */}
+        {/* ── Map (real interactive Leaflet navigation map) ──────── */}
         <div className="px-4 pt-3">
-          <RouteMap victim={victim} nearest={nearest} recommended={recommended} ranked={ranked} />
+          <Suspense fallback={<MapSkeleton />}>
+            <LiveRouteMap victim={victim} recommended={recommended} language={lang} />
+          </Suspense>
         </div>
 
         {/* ── The decision ───────────────────────────────────────── */}
@@ -526,6 +534,21 @@ export default function AntidotePlusRouting() {
           </div>
         </div>
       </div>
+
+      {/* ── Live GPS navigation overlay (§P2) ──────────────────────
+          Mounts over the routing screen once the user starts navigation. The
+          routing markup above is untouched; ending navigation returns to the
+          confirmed state. We pass the FULL recommended facility (it carries the
+          real lat/lng) as the destination, and the victim location as the
+          start used until the first live fix arrives. */}
+      {phase === "navigating" && recommended && (
+        <NavigationOverlay
+          destination={recommended}
+          origin={victim}
+          language={lang}
+          onEnd={() => setPhase("confirmed")}
+        />
+      )}
     </div>
   );
 }
@@ -554,77 +577,20 @@ function SecondaryBtn({ icon, label }) {
   );
 }
 
-// ── Stylized route map (SVG, fully controllable — no live map needed) ──────
-function RouteMap({ victim, nearest, recommended, ranked }) {
-  const W = 398, H = 188, PAD = 26;
-  const pts = [victim, ...ranked];
-  const lats = pts.map((p) => p.lat), lngs = pts.map((p) => p.lng);
-  const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-  const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
-  const sx = (lng) => PAD + ((lng - minLng) / (maxLng - minLng || 1)) * (W - 2 * PAD);
-  const sy = (lat) => H - PAD - ((lat - minLat) / (maxLat - minLat || 1)) * (H - 2 * PAD);
-
-  const vx = sx(victim.lng), vy = sy(victim.lat);
-  const rx = recommended ? sx(recommended.lng) : vx;
-  const ry = recommended ? sy(recommended.lat) : vy;
-  const nx = sx(nearest.lng), ny = sy(nearest.lat);
-
+// ── Map loading skeleton (shown while the lazy Leaflet bundle resolves) ─────
+// Matches the map's footprint exactly (240px tall, same card radius) so the
+// layout never shifts when the real map swaps in.
+function MapSkeleton() {
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Route to the nearest stocked hospital"
-      style={{ borderRadius: 16, background: C.tealPale, display: "block" }}>
-      {/* ambient road hairlines */}
-      {[0.3, 0.55, 0.8].map((f, i) => (
-        <line key={i} x1={0} y1={H * f} x2={W} y2={H * (f - 0.12)} stroke="#D2E7E5" strokeWidth="1" />
-      ))}
-
-      {/* faint X-ed line to the trap */}
-      {nearest.id !== recommended?.id && (
-        <line x1={vx} y1={vy} x2={nx} y2={ny} stroke={C.danger} strokeWidth="1.5" strokeDasharray="3 4" opacity="0.5" />
-      )}
-
-      {/* live route line to recommended */}
-      {recommended && (
-        <line x1={vx} y1={vy} x2={rx} y2={ry} stroke={C.orange} strokeWidth="3.5" strokeLinecap="round"
-          strokeDasharray="2 6" style={{ animation: "dash .6s linear infinite" }} />
-      )}
-
-      {/* other facility dots */}
-      {ranked.map((f) => {
-        if (f.id === recommended?.id || f.id === nearest.id) return null;
-        const col = f.vials <= 0 ? "#C9A7A2" : f.vials >= 10 ? C.good : C.amber;
-        return <circle key={f.id} cx={sx(f.lng)} cy={sy(f.lat)} r="3.5" fill={col} opacity="0.7" />;
-      })}
-
-      {/* trap pin */}
-      {nearest.id !== recommended?.id && (
-        <g transform={`translate(${nx},${ny})`}>
-          <circle r="9" fill="#fff" stroke={C.danger} strokeWidth="2" />
-          <path d="M-3.5,-3.5 L3.5,3.5 M3.5,-3.5 L-3.5,3.5" stroke={C.danger} strokeWidth="2" strokeLinecap="round" />
-        </g>
-      )}
-
-      {/* recommended pin */}
-      {recommended && (
-        <g transform={`translate(${rx},${ry})`}>
-          <circle r="13" fill={C.orange} opacity="0.18" />
-          <circle r="8.5" fill={C.orange} stroke="#fff" strokeWidth="2" />
-          <path d="M-3,0 L-1,2.5 L3.5,-2.5" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-        </g>
-      )}
-
-      {/* victim (pulsing) */}
-      <g transform={`translate(${vx},${vy})`}>
-        <circle r="8" fill={C.teal} opacity="0.25" style={{ transformOrigin: "center", animation: "pulseRing 1.8s ease-out infinite" }} />
-        <circle r="5.5" fill={C.teal} stroke="#fff" strokeWidth="2" />
-      </g>
-
-      {/* legend */}
-      <g transform={`translate(${PAD - 8}, 14)`} fontSize="9" fontFamily="system-ui" fontWeight="600">
-        <circle cx="4" cy="-3" r="4" fill={C.teal} /><text x="12" y="0" fill={C.tealDark}>You</text>
-        <circle cx="44" cy="-3" r="4" fill={C.orange} /><text x="52" y="0" fill={C.tealDark}>Has ASV</text>
-        <g transform="translate(108,-3)"><circle r="4" fill="#fff" stroke={C.danger} strokeWidth="1.5" /></g>
-        <text x="116" y="0" fill={C.tealDark}>No stock</text>
-      </g>
-    </svg>
+    <div
+      className="rounded-2xl border flex items-center justify-center"
+      style={{ height: 240, background: C.tealPale, borderColor: "#E1EAE9" }}
+      role="img"
+      aria-label="Loading map"
+    >
+      <span className="ap-spin inline-flex" style={{ color: C.tealLight }}>
+        <RadioTower size={24} />
+      </span>
+    </div>
   );
 }
