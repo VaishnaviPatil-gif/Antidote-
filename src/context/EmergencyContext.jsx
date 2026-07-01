@@ -66,6 +66,12 @@ const DEFAULT_STATE = {
   emergencyContact: null, // { name, phone } | null
   recommendedHospital: null, // set by routing so SOS / hospital view can read it
   lastRoute: null, // deepest emergency screen visited — enables "resume" (§P1)
+  // Optional patient identifiers for the clinician handover card. Not part of
+  // the core emergency flow — captured only if a bystander adds them; absent
+  // fields render as "Not Recorded". Persisted for free with the rest of state.
+  patientId: null, // string | null
+  patientAge: null, // string | null
+  patientGender: null, // "male" | "female" | "other" | null
 };
 
 /**
@@ -222,6 +228,13 @@ export function EmergencyProvider({ children }) {
   );
 
   /**
+   * Optional patient identifiers for the handover card (§ClinicianHandover).
+   * Accepts any subset — only the provided keys are written — so the card's
+   * editor can save id / age / gender independently. Never invents values.
+   */
+  const setPatientInfo = useCallback((info) => patch(info), [patch]);
+
+  /**
    * Record the deepest emergency screen the victim reached (§P1). App.jsx calls
    * this on navigation; the resume banner reads it to send the user back to
    * exactly where they were after a restart. We ignore no-op repeats so this
@@ -279,6 +292,7 @@ export function EmergencyProvider({ children }) {
       appendSymptom,
       setEmergencyContact,
       setRecommendedHospital,
+      setPatientInfo,
       resetEmergency,
     }),
     [
@@ -296,6 +310,7 @@ export function EmergencyProvider({ children }) {
       appendSymptom,
       setEmergencyContact,
       setRecommendedHospital,
+      setPatientInfo,
       resetEmergency,
     ]
   );
