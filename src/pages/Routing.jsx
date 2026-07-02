@@ -194,7 +194,7 @@ export default function AntidotePlusRouting() {
     ? Math.max(0, Math.floor((Date.now() - new Date(biteTime).getTime()) / 60000))
     : 18;
 
-  const requiredVials = severity === "severe" ? 10 : severity === "moderate" ? 6 : 4;
+  const requiredVials = severity === "critical" ? 15 : severity === "severe" ? 10 : severity === "moderate" ? 6 : 4;
 
   const liveCaseInfo = useMemo(() => {
     if (!biteTime || !recommendedHospital) return null;

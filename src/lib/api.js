@@ -94,3 +94,25 @@ export async function summarizeSymptoms(symptomLog, biteTime, language) {
     return null;
   }
 }
+
+/**
+ * POST /api/severity — AI Severity Engine.
+ */
+export async function evaluateSeverity(symptoms, snake, minsSinceBite, swellingProgression) {
+  try {
+    const res = await fetch(`${API_BASE}/api/severity`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        symptoms,
+        snake,
+        mins_since_bite: minsSinceBite,
+        swelling_progression: swellingProgression
+      }),
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}

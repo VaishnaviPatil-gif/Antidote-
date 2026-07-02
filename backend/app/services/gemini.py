@@ -157,14 +157,24 @@ _IDENTIFY_PROMPT = (
     "guess."
 )
 
-_SUMMARIZE_PROMPT = (
-    "You are assisting a clinician who is about to receive a snakebite patient. "
-    "From the monitoring log below, write ONE concise English handover sentence "
-    "(max ~40 words) covering: minutes since the bite, swelling spread, "
-    "neurotoxic signs (ptosis, blurred/double vision, slurred speech, "
-    "drowsiness), haematotoxic signs (bleeding), breathing difficulty, the "
-    "current severity and its trend. Do NOT give a definitive diagnosis — this "
-    "supports clinical assessment. Return only the sentence.\n\n"
+_SEVERITY_PROMPT = (
+    "You are an expert clinical toxicologist specializing in snakebite envenomation triage.\n"
+    "Evaluate the clinical severity based on the following input:\n"
+    "Inputs:\n"
+    "- Symptoms: {symptoms}\n"
+    "- Snake Identification: {snake}\n"
+    "- Time Since Bite: {time_since_bite}\n"
+    "- Swelling Progression: {swelling_progression}\n\n"
+    "Outputs must be in valid JSON format matching this schema:\n"
+    "{{\n"
+    '  "severity": "Mild" | "Moderate" | "Severe" | "Critical",\n'
+    '  "confidence": <float between 0.0 and 1.0>,\n'
+    '  "reasoning": [<list of short clinical bullet points justifying the classification>]\n'
+    "}}\n\n"
+    "Safety Guidelines (Safety-First):\n"
+    "1. CRITICAL: If there are systemic neurotoxic signs (e.g. drooping eyelids/ptosis, slurred speech, drowsiness, breathing issues) OR significant bleeding, severity must be classified as Severe or Critical.\n"
+    "2. If the snake is identified as highly venomous (e.g. Russell's Viper, Indian Cobra, Saw-scaled Viper, Common Krait) and there are systemic symptoms, evaluate as Severe or Critical. If there are no symptoms yet but the bite time is short, rate as Moderate or Severe to ensure safety.\n"
+    "3. Output MUST be valid JSON only, no markdown fences, no extra text."
 )
 
 
@@ -474,3 +484,105 @@ def summarize(symptom_log: list, bite_time: str | None, language: str = "en") ->
     except Exception:  # noqa: BLE001
         logger.exception("summarize failed; returning fallback")
         return {"summary": fallback, "source": "fallback"}
+
+
+def _compose_severity_fallback(symptoms: dict, snake: dict | None, mins_since_bite: int, swelling_progression: str) -> dict:
+    has_breathing = symptoms.get("breathing") == "yes"
+    has_vision = symptoms.get("vision") == "yes"
+    has_bleeding = symptoms.get("bleeding") == "yes"
+    has_drowsy = symptoms.get("drowsy") == "yes"
+    
+    is_venomous = snake.get("venomous") if snake else True
+    
+    reasoning = []
+    
+    if has_breathing:
+        reasoning.append("Respiratory compromise or breathing difficulty reported.")
+    if has_vision:
+        reasoning.append("Neurotoxic signs detected (vision impairment or ptosis).")
+    if has_bleeding:
+        reasoning.append("Hemotoxic signs detected (spontaneous bleeding).")
+    if has_drowsy:
+        reasoning.append("Systemic neurological depression (drowsiness / slurred speech).")
+        
+    if swelling_progression == "spreading":
+        reasoning.append("Rapidly spreading localized swelling up the bitten limb.")
+    elif swelling_progression == "local":
+        reasoning.append("Swelling localized to bite site area.")
+        
+    if snake and snake.get("species") and snake.get("species") != "Unidentified":
+        reasoning.append(f"Identified species: {snake.get('species')} ({'Venomous' if is_venomous else 'Non-Venomous'}).")
+    else:
+        reasoning.append("Snake species remains unidentified; treating as potentially venomous for safety.")
+
+    if has_breathing or (has_vision and has_drowsy):
+        severity_level = "Critical"
+    elif has_vision or has_bleeding or has_drowsy:
+        severity_level = "Severe"
+    elif swelling_progression == "spreading":
+        severity_level = "Moderate"
+    else:
+        severity_level = "Mild"
+        
+    reasoning.append(f"Bite duration: {mins_since_bite} minutes elapsed since exposure.")
+    reasoning.append("Clinical assessment always overrides automated triage recommendations.")
+
+    return {
+        "severity": severity_level,
+        "confidence": 0.85,
+        "reasoning": reasoning,
+        "disclaimer": "Never replace professional medical advice. Always remain safety-first. Triage recommendations are tentative.",
+        "source": "fallback"
+    }
+
+
+def evaluate_severity(symptoms: dict, snake: dict | None, mins_since_bite: int, swelling_progression: str) -> dict:
+    """Evaluate triage severity using Gemini or fallback."""
+    fallback = _compose_severity_fallback(symptoms, snake, mins_since_bite, swelling_progression)
+    genai = _genai()
+    if genai is None:
+        return fallback
+    try:
+        model = genai.GenerativeModel(settings.gemini_model)
+        prompt = _SEVERITY_PROMPT.format(
+            symptoms=json.dumps(symptoms),
+            snake=json.dumps(snake) if snake else "None",
+            time_since_bite=f"{mins_since_bite} minutes",
+            swelling_progression=swelling_progression
+        )
+        resp = model.generate_content(prompt)
+        text = (getattr(resp, "text", "") or "").strip()
+        if not text:
+            return fallback
+            
+        data = _extract_json(text)
+        if not data or "severity" not in data:
+            return fallback
+            
+        # Validate/clean
+        severity_val = str(data["severity"]).capitalize()
+        if severity_val not in ["Mild", "Moderate", "Severe", "Critical"]:
+            severity_val = fallback["severity"]
+            
+        confidence_val = data.get("confidence", 0.85)
+        try:
+            confidence_val = float(confidence_val)
+        except (ValueError, TypeError):
+            confidence_val = 0.85
+            
+        reasoning_list = data.get("reasoning", [])
+        if not isinstance(reasoning_list, list):
+            reasoning_list = [str(reasoning_list)]
+        if not reasoning_list:
+            reasoning_list = fallback["reasoning"]
+            
+        return {
+            "severity": severity_val,
+            "confidence": confidence_val,
+            "reasoning": reasoning_list,
+            "disclaimer": "Never replace professional medical advice. Always remain safety-first. Triage recommendations are tentative.",
+            "source": "gemini"
+        }
+    except Exception:  # noqa: BLE001
+        logger.exception("evaluate_severity failed; returning fallback")
+        return fallback
