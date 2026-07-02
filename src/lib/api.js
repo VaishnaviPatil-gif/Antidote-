@@ -7,6 +7,15 @@
  * GEMINI_API_KEY never leaves the backend.
  */
 
+/**
+ * Base URL of the backend. Empty in dev so requests stay relative (/api/…) and
+ * ride the Vite proxy. In a packaged build (Android APK / static host) there is
+ * no proxy, so set VITE_API_BASE to the hosted backend, e.g.
+ *   VITE_API_BASE=https://api.antidote.example
+ * Otherwise the AI calls silently fall back and Gemini appears to do nothing.
+ */
+const API_BASE = (import.meta.env?.VITE_API_BASE ?? "").replace(/\/+$/, "");
+
 /** Safe default identification, mirroring the backend contract exactly. */
 const SAFE_DEFAULT = { species: "Unidentified", confidence: 0, venomous: true };
 
@@ -22,7 +31,7 @@ const SAFE_DEFAULT = { species: "Unidentified", confidence: 0, venomous: true };
 export async function identifySnake(dataUrl) {
   try {
     const base64 = String(dataUrl).split(",")[1] || "";
-    const res = await fetch("/api/identify", {
+    const res = await fetch(`${API_BASE}/api/identify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ image: base64 }),
@@ -54,7 +63,7 @@ export async function identifySnake(dataUrl) {
  */
 export async function summarizeSymptoms(symptomLog, biteTime, language) {
   try {
-    const res = await fetch("/api/summarize", {
+    const res = await fetch(`${API_BASE}/api/summarize`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ symptomLog, biteTime, language }),
