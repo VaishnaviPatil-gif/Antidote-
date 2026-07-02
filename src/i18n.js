@@ -84,6 +84,32 @@ export const T = {
       analyzeFailed: "Couldn't analyze the image",
       lowConfidence: "Low confidence — not naming a species",
       cleared: "Photo cleared",
+      // Safety-protocol fallback (shown when the snake can't be safely identified)
+      fallback: {
+        title: "Safety First",
+        titleBody: "Treat this bite as venomous until a doctor confirms otherwise.",
+        headline: "Unable to confidently identify the snake",
+        body1: "The uploaded image is unclear or does not contain enough visual information for a safe identification.",
+        body2: "To avoid dangerous delays, Antidote+ follows India's snakebite treatment guidelines and recommends treating every unidentified bite as potentially venomous.",
+        reasons: {
+          failed: "The image could not be processed",
+          lowConfidence: "Low AI confidence",
+          unverified: "Unable to verify species",
+        },
+        confidenceLabel: "AI Confidence",
+        belowThreshold: "Below safe identification threshold",
+        whatToDo: "What to do now",
+        steps: [
+          "Stay calm.",
+          "Keep the bitten limb still.",
+          "Remove rings or tight objects.",
+          "Do NOT cut or suck the wound.",
+          "Reach the nearest hospital with antivenom immediately.",
+        ],
+        rememberTitle: "Remember",
+        rememberBody:
+          "AI identification is only an assistant. Treatment decisions should always be based on symptoms and medical evaluation — not the identified species.",
+      },
     },
 
     // ── First aid ──
@@ -411,6 +437,32 @@ export const T = {
       analyzeFailed: "चित्र का विश्लेषण नहीं हो सका",
       lowConfidence: "कम विश्वास — प्रजाति नहीं बता रहे",
       cleared: "फोटो हटाई गई",
+      // Safety-protocol fallback (shown when the snake can't be safely identified)
+      fallback: {
+        title: "सुरक्षा पहले",
+        titleBody: "जब तक डॉक्टर पुष्टि न करें, इस काटने को विषैला मानें।",
+        headline: "साँप की पहचान भरोसे के साथ नहीं हो पाई",
+        body1: "अपलोड की गई तस्वीर स्पष्ट नहीं है या सुरक्षित पहचान के लिए पर्याप्त जानकारी नहीं देती।",
+        body2: "खतरनाक देरी से बचने के लिए, Antidote+ भारत के सर्पदंश उपचार दिशानिर्देशों का पालन करता है और हर अज्ञात काटने को संभावित विषैला मानने की सलाह देता है।",
+        reasons: {
+          failed: "तस्वीर संसाधित नहीं हो सकी",
+          lowConfidence: "कम एआई विश्वास",
+          unverified: "प्रजाति सत्यापित नहीं हो सकी",
+        },
+        confidenceLabel: "एआई विश्वास",
+        belowThreshold: "सुरक्षित पहचान सीमा से नीचे",
+        whatToDo: "अभी क्या करें",
+        steps: [
+          "शांत रहें।",
+          "काटे अंग को स्थिर रखें।",
+          "अंगूठियाँ या तंग वस्तुएँ हटाएँ।",
+          "घाव को न काटें, न चूसें।",
+          "तुरंत एंटीवेनम वाले नज़दीकी अस्पताल पहुँचें।",
+        ],
+        rememberTitle: "याद रखें",
+        rememberBody:
+          "एआई पहचान केवल एक सहायक है। उपचार के निर्णय हमेशा लक्षणों व चिकित्सकीय मूल्यांकन पर आधारित हों — पहचानी गई प्रजाति पर नहीं।",
+      },
     },
 
     firstAid: {
@@ -732,6 +784,32 @@ export const T = {
       analyzeFailed: "చిత్రాన్ని విశ్లేషించలేకపోయాం",
       lowConfidence: "తక్కువ నమ్మకం — జాతిని పేర్కొనడం లేదు",
       cleared: "ఫోటో తొలగించబడింది",
+      // Safety-protocol fallback (shown when the snake can't be safely identified)
+      fallback: {
+        title: "భద్రత మొదట",
+        titleBody: "డాక్టర్ నిర్ధారించే వరకు ఈ కాటును విషపూరితంగా భావించండి.",
+        headline: "పామును నమ్మకంగా గుర్తించలేకపోయాం",
+        body1: "అప్‌లోడ్ చేసిన చిత్రం స్పష్టంగా లేదు లేదా సురక్షిత గుర్తింపుకు సరిపడా దృశ్య సమాచారం లేదు.",
+        body2: "ప్రమాదకర ఆలస్యాలను నివారించడానికి, Antidote+ భారత పాముకాటు చికిత్సా మార్గదర్శకాలను అనుసరిస్తుంది మరియు గుర్తించని ప్రతి కాటును విషపూరితంగా భావించాలని సిఫార్సు చేస్తుంది.",
+        reasons: {
+          failed: "చిత్రాన్ని ప్రాసెస్ చేయలేకపోయాం",
+          lowConfidence: "తక్కువ AI నమ్మకం",
+          unverified: "జాతిని ధృవీకరించలేకపోయాం",
+        },
+        confidenceLabel: "AI నమ్మకం",
+        belowThreshold: "సురక్షిత గుర్తింపు పరిమితి కంటే తక్కువ",
+        whatToDo: "ఇప్పుడు ఏం చేయాలి",
+        steps: [
+          "ప్రశాంతంగా ఉండండి.",
+          "కాటు వేసిన అవయవాన్ని కదలకుండా ఉంచండి.",
+          "ఉంగరాలు లేదా బిగుతు వస్తువులను తీసివేయండి.",
+          "గాయాన్ని కోయవద్దు, పీల్చవద్దు.",
+          "వెంటనే యాంటీవెనమ్ ఉన్న దగ్గరి ఆసుపత్రికి చేరుకోండి.",
+        ],
+        rememberTitle: "గుర్తుంచుకోండి",
+        rememberBody:
+          "AI గుర్తింపు కేవలం ఒక సహాయకం మాత్రమే. చికిత్స నిర్ణయాలు ఎల్లప్పుడూ లక్షణాలు మరియు వైద్య మూల్యాంకనం ఆధారంగా ఉండాలి — గుర్తించిన జాతి ఆధారంగా కాదు.",
+      },
     },
 
     firstAid: {

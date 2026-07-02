@@ -29,6 +29,9 @@ export async function identifySnake(dataUrl) {
     });
     if (!res.ok) return { ...SAFE_DEFAULT, _failed: true };
     const data = await res.json();
+    // Pipeline diagnostics (dev only): the exact JSON received from the proxy,
+    // which is what the Snake screen renders verbatim (species + confidence).
+    if (import.meta.env?.DEV) console.debug("[identify] /api/identify response:", data);
     const confidence = typeof data.confidence === "number" ? data.confidence : 0;
     const species =
       typeof data.species === "string" && data.species ? data.species : "Unidentified";
