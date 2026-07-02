@@ -294,6 +294,35 @@ export const T = {
       vialsVal: (vials) => `${vials} vials`,
     },
 
+    analytics: {
+      title: "Snakebite Analytics",
+      subtitle: "Regional envenomation trends & antivenom logistics",
+      back: "Back",
+      heatmap: "Bite Locations Heatmap",
+      hotspots: "Bite Hotspots Map",
+      species: "Venomous Species Frequency",
+      usage: "Hospital Usage",
+      consumption: "Antivenom Logistics",
+      response: "Average Response Time",
+      trend: "Monthly Cases Trend",
+      cases: "cases",
+      vials: "vials",
+      timeVal: "min",
+      admissions: "Admissions",
+      activeCaseIndicator: "Including 1 live active case under treatment",
+      metrics: {
+        totalVials: "Vials Consumed",
+        avgDose: "Average Dose",
+        reserved: "Reserved Vials",
+        wastage: "Wastage Rate"
+      },
+      responseTimes: {
+        dispatch: "Dispatch-to-En-Route",
+        travel: "Average Travel Time",
+        treatment: "Door-to-Needle ASV"
+      }
+    },
+
     // ── High-risk indicator (prevention) ──
     risk: {
       title: "High snakebite risk indicator",
@@ -697,6 +726,35 @@ export const T = {
       vialsVal: (vials) => `${vials} शीशियां`,
     },
 
+    analytics: {
+      title: "सर्पदंश विश्लेषण",
+      subtitle: "क्षेत्रीय दंश प्रवृत्तियां और एंटीवेनम रसद",
+      back: "पीछे",
+      heatmap: "दंश स्थान हीटमैप",
+      hotspots: "दंश हॉटस्पॉट मानचित्र",
+      species: "विषैली प्रजातियों की आवृत्ति",
+      usage: "अस्पताल का उपयोग",
+      consumption: "एंटीवेनम रसद",
+      response: "औसत प्रतिक्रिया समय",
+      trend: "मासिक मामले की प्रवृत्ति",
+      cases: "मामले",
+      vials: "शीशियाँ",
+      timeVal: "मिनट",
+      admissions: "प्रवेश",
+      activeCaseIndicator: "उपचार के तहत 1 लाइव सक्रिय मामला शामिल है",
+      metrics: {
+        totalVials: "खपत की गई शीशियाँ",
+        avgDose: "औसत खुराक",
+        reserved: "आरक्षित शीशियाँ",
+        wastage: "अपव्यय दर"
+      },
+      responseTimes: {
+        dispatch: "डिस्पैच से मार्ग में",
+        travel: "औसत यात्रा समय",
+        treatment: "सुई तक का समय (ASV)"
+      }
+    },
+
     risk: {
       title: "सर्पदंश उच्च जोखिम सूचक",
       subtitle: "आपके क्षेत्र का सामान्य सूचक — आपके लिए पूर्वानुमान नहीं।",
@@ -1096,6 +1154,35 @@ export const T = {
         started: "చికిత్స ప్రారంభమైంది"
       },
       vialsVal: (vials) => `${vials} సీసాలు`,
+    },
+
+    analytics: {
+      title: "పాముకాటు విశ్లేషణ",
+      subtitle: "ప్రాంతీయ పాముకాటు ధోరణులు & యాంటీవెనమ్ సరఫరా",
+      back: "వెనుకకు",
+      heatmap: "కాటు ప్రాంతాల హీట్‌మ్యాప్",
+      hotspots: "పాముకాటు హాట్‌స్పాట్ మ్యాప్",
+      species: "విషపూరిత జాతుల ఫ్రీక్వెన్సీ",
+      usage: "ఆసుపత్రి వినియోగం",
+      consumption: "యాంటీవెనమ్ లాజిస్టిక్స్",
+      response: "సగటు స్పందన సమయం",
+      trend: "నెలవారీ కేసుల ధోరణి",
+      cases: "కేసులు",
+      vials: "సీసాలు",
+      timeVal: "నిమిషాలు",
+      admissions: "అడ్మిషన్లు",
+      activeCaseIndicator: "చికిత్సలో ఉన్న 1 లైవ్ యాక్టివ్ కేస్ చేర్చబడింది",
+      metrics: {
+        totalVials: "వినియోగించిన సీసాలు",
+        avgDose: "సగటు మోతాదు",
+        reserved: "రిజర్వ్ చేసిన సీసాలు",
+        wastage: "వృథా రేటు"
+      },
+      responseTimes: {
+        dispatch: "డిస్పాచ్-టు-ఎన్‌రూట్",
+        travel: "సగటు ప్రయాణ సమయం",
+        treatment: "డోర్-టు-నీడిల్ ASV"
+      }
     },
 
     risk: {

@@ -16,6 +16,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
 const Learn = lazy(() => import("./pages/Learn.jsx"));
 const Stock = lazy(() => import("./pages/Stock.jsx"));
 const Routing = lazy(() => import("./pages/Routing.jsx"));
+const Analytics = lazy(() => import("./pages/Analytics.jsx"));
 
 /**
  * Router + layout glue.
@@ -52,7 +53,7 @@ export default function App() {
   useEffect(() => {
     // Skip Home and the non-emergency screens (prevention + staff stock console)
     // so resume-after-restart always returns to the real last emergency step.
-    if (pathname !== "/" && pathname !== "/learn" && pathname !== "/stock" && pathname !== "/dashboard") {
+    if (pathname !== "/" && pathname !== "/learn" && pathname !== "/stock" && pathname !== "/dashboard" && pathname !== "/analytics") {
       setLastRoute(pathname);
     }
   }, [pathname, setLastRoute]);
@@ -71,6 +72,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/learn" element={<Learn />} />
           <Route path="/stock" element={<Stock />} />
+          <Route path="/analytics" element={<Analytics />} />
         </Route>
 
         {/* Hero — full-bleed, self-contained, reads/writes EmergencyContext */}
