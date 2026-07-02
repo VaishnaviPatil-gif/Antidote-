@@ -26,6 +26,32 @@ never in the victim's emergency path.
 
 ---
 
+## What's new in V2
+
+The differentiators are no longer mocked — they run on real data and real device
+APIs:
+
+- **Live antivenom stock feed.** The routing engine now reads a real, timestamped
+  inventory from the backend (`GET /api/hospitals`), not a hardcoded array. It
+  degrades gracefully: **live → cached → seeded**, with a source badge on the
+  routing screen so it's honest about where the number came from. Hospital staff
+  / ASHA workers update stock and beds from **Home → Hospital staff** (`/stock`),
+  and the change feeds the victim's routing instantly (`POST /api/hospitals/{id}/stock`).
+- **Real SOS.** The family alert now opens the device **SMS composer** prefilled
+  with symptoms + a tappable **Google Maps location link**, and offers **one-tap
+  calling** — texting every saved contact at once. The offline queue and live
+  coordination timeline are unchanged.
+- **Multiple emergency contacts.** Save several family members, set a primary,
+  one-tap call each, and **share live location** via the native share sheet.
+- **Hospital intelligence.** Filter alternative facilities by **ICU · beds ·
+  govt/private** on the routing screen.
+- **Installable PWA.** Web build ships a manifest + offline service worker, so it
+  installs to the home screen and opens with no signal after the first visit.
+- **Live GPS navigation on a real map** (Leaflet + OSRM) and a durable, resumable
+  offline session (IndexedDB) carried over from the earlier V2 work.
+
+---
+
 ## Tech stack
 
 | Layer    | Choice |
