@@ -25,3 +25,22 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </BrowserRouter>
   </React.StrictMode>
 );
+
+/**
+ * Register the offline service worker — installable PWA + shell caching so the
+ * app opens and runs after the first visit even with no signal (§P5). Guarded to
+ * the production web build only: never in dev (avoids caching surprises) and
+ * never inside the Capacitor native WebView, which ships its own offline assets.
+ */
+if (
+  import.meta.env.PROD &&
+  typeof window !== "undefined" &&
+  !window.Capacitor &&
+  "serviceWorker" in navigator
+) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      /* SW registration is a progressive enhancement — ignore failures */
+    });
+  });
+}

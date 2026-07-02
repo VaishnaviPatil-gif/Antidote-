@@ -1,0 +1,18 @@
+{
+  "name": "Antidote+ — Snakebite Emergency",
+  "short_name": "Antidote+",
+  "description": "AI Snakebite Emergency Network — routes a victim to the nearest hospital that actually has antivenom in stock, and relays symptoms ahead.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EDF3F2",
+  "theme_color": "#0D6E6E",
+  "lang": "te",
+  "categories": ["medical", "health", "utilities"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
