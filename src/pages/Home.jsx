@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Siren, Crosshair, CheckCircle2, Loader2, MapPin,
-  ChevronRight, ShieldQuestion, Pencil, Navigation2, Play,
+  ChevronRight, ShieldQuestion, Pencil, Navigation2, Play, Boxes,
 } from "lucide-react";
 import { C } from "../theme.js";
 import { tFor } from "../i18n.js";
@@ -285,6 +285,26 @@ export default function Home() {
           </div>
           <div className="text-xs leading-snug" style={{ color: C.muted }}>
             {t.home.learnHint}
+          </div>
+        </div>
+        <ChevronRight size={18} style={{ color: C.muted }} className="shrink-0" />
+      </button>
+
+      {/* ── Hospital-staff entry — update the live antivenom/bed feed ── */}
+      <button
+        onClick={() => navigate("/stock")}
+        className="rounded-2xl bg-white border px-4 py-3 flex items-center gap-3 text-left active:scale-[.99] transition-transform"
+        style={{ borderColor: "#E1EAE9" }}
+      >
+        <div className="rounded-lg p-2 shrink-0" style={{ background: C.tealPale }}>
+          <Boxes size={18} style={{ color: C.teal }} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-bold" style={{ color: C.dark }}>
+            {t.home.staff}
+          </div>
+          <div className="text-xs leading-snug" style={{ color: C.muted }}>
+            {t.home.staffHint}
           </div>
         </div>
         <ChevronRight size={18} style={{ color: C.muted }} className="shrink-0" />
