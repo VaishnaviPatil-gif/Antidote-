@@ -24,8 +24,12 @@ class Settings(BaseSettings):
     # Gemini model used for both vision and text.
     gemini_model: str = "gemini-2.5-flash"
 
-    # CORS origins (comma-separated) — the Vite dev server by default.
-    allowed_origins: str = "http://localhost:5173"
+    # CORS origins (comma-separated). Defaults cover the Vite dev server AND the
+    # Capacitor Android WebView origins (https://localhost, capacitor://localhost)
+    # so AI calls work in the packaged APK, not only in the browser.
+    allowed_origins: str = (
+        "http://localhost:5173,https://localhost,capacitor://localhost"
+    )
 
     # Logging level.
     log_level: str = "INFO"
