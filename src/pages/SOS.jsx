@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Send, Clock, Activity, MapPin, User, Phone, Pencil, RefreshCw,
+  Send, Clock, Activity, MapPin, User, Phone, RefreshCw,
   CheckCircle2, Loader2, Building2, Hospital as HospitalIcon, Inbox, ChevronRight,
+  X, Plus, Star, Share2, Check,
 } from "lucide-react";
 import { C, SEVERITY_TONE } from "../theme.js";
 import { tFor } from "../i18n.js";
 import { useEmergency, minutesSinceBite } from "../context/EmergencyContext.jsx";
 import { useOnline } from "../hooks/useOnline.js";
-import { composeSummary, buildAlertMessage, DEMO_RECOMMENDED } from "../lib/handover.js";
+import { composeSummary, buildAlertMessage, mapsLink, DEMO_RECOMMENDED } from "../lib/handover.js";
+import { startCall, openSms, shareOrCopy } from "../lib/share.js";
 import EmergencyTimeline from "../components/EmergencyTimeline.jsx";
 import {
   buildTimeline, buildPreparation, deriveCurrentIndex,
@@ -38,7 +40,8 @@ export default function SOS() {
   const navigate = useNavigate();
   const {
     language, biteTime, victimLocation, victimLabel, severity, symptomLog,
-    emergencyContact, setEmergencyContact, recommendedHospital,
+    emergencyContact, emergencyContacts, addEmergencyContact,
+    removeEmergencyContact, setPrimaryContact, recommendedHospital,
   } = useEmergency();
   const t = tFor(language);
   const online = useOnline();
@@ -81,14 +84,37 @@ export default function SOS() {
     if (!edited) setMessage(buildCurrent());
   }, [buildCurrent, edited]);
 
-  // ── Emergency contact ──────────────────────────────────────────────────
-  const [editingContact, setEditingContact] = useState(!emergencyContact);
-  const [cName, setCName] = useState(emergencyContact?.name || "");
-  const [cPhone, setCPhone] = useState(emergencyContact?.phone || "");
-  const saveContact = useCallback(() => {
-    setEmergencyContact({ name: cName.trim(), phone: cPhone.trim() });
-    setEditingContact(false);
-  }, [cName, cPhone, setEmergencyContact]);
+  // ── Emergency contacts (multiple family members) ────────────────────────
+  const contacts = emergencyContacts || [];
+  const [showAdd, setShowAdd] = useState(contacts.length === 0);
+  const [cName, setCName] = useState("");
+  const [cPhone, setCPhone] = useState("");
+  const addContact = useCallback(() => {
+    if (!cName.trim() && !cPhone.trim()) return;
+    addEmergencyContact({ name: cName.trim(), phone: cPhone.trim() });
+    setCName("");
+    setCPhone("");
+    setShowAdd(false);
+  }, [cName, cPhone, addEmergencyContact]);
+
+  // Every saved phone number, for texting the whole family in one composer.
+  const allPhones = useMemo(
+    () => contacts.map((c) => c.phone).filter(Boolean),
+    [contacts]
+  );
+
+  // Share just the live-location link via the native share sheet (falls back to
+  // clipboard). Quicker than the full alert when someone only needs the pin.
+  const [locShared, setLocShared] = useState(false);
+  const shareLocation = useCallback(async () => {
+    const link = mapsLink(victimLocation);
+    if (!link) return;
+    const res = await shareOrCopy({ title: t.sos.shareLoc, text: link });
+    if (res === "shared" || res === "copied") {
+      setLocShared(true);
+      setTimeout(() => setLocShared(false), 2500);
+    }
+  }, [victimLocation, t]);
 
   // ── Send state machine: idle | sending | sent | queued ─────────────────
   const [sendState, setSendState] = useState("idle");
@@ -96,9 +122,14 @@ export default function SOS() {
   useEffect(() => () => clearTimeout(timerRef.current), []);
 
   const doSend = useCallback(() => {
+    // Fire the REAL SMS composer to EVERY saved family number at once — this
+    // opens the device's messaging app prefilled with the alert (location link
+    // included). The coordination timeline below still advances so the on-stage
+    // demo shows the hospital-side mobilisation even if the composer is dismissed.
+    if (allPhones.length) openSms(allPhones.join(","), message);
     setSendState("sending");
     timerRef.current = setTimeout(() => setSendState("sent"), 1500);
-  }, []);
+  }, [allPhones, message]);
 
   const handleSend = useCallback(() => {
     if (sendState === "sending" || sendState === "sent") return;
@@ -108,6 +139,11 @@ export default function SOS() {
     }
     doSend();
   }, [sendState, online, doSend]);
+
+  // One-tap real phone call to a specific saved contact.
+  const handleCall = useCallback((phone) => {
+    if (phone) startCall(phone);
+  }, []);
 
   // Auto-send a queued alert the moment connectivity returns.
   useEffect(() => {
@@ -225,26 +261,108 @@ export default function SOS() {
       {/* ── Emergency coordination timeline (live) ─────────────── */}
       <EmergencyTimeline steps={timelineSteps} preparation={preparation} t={t} />
 
-      {/* ── Emergency contact ──────────────────────────────────── */}
+      {/* ── Emergency contacts (family members) ────────────────── */}
       <section className="rounded-2xl bg-white border" style={{ borderColor: "#E1EAE9" }}>
         <div className="px-4 py-2.5 flex items-center justify-between border-b" style={{ borderColor: "#EEF4F3" }}>
           <span className="text-sm font-bold" style={{ color: C.dark }}>
             {t.sos.contactTitle}
           </span>
-          {emergencyContact && !editingContact && (
+          {/* Quick share of just the live-location link (native share sheet). */}
+          {victimLocation && (
             <button
-              onClick={() => setEditingContact(true)}
-              className="flex items-center gap-1 text-xs font-semibold"
-              style={{ color: C.teal }}
+              onClick={shareLocation}
+              className="flex items-center gap-1 text-xs font-semibold active:scale-95 transition-transform"
+              style={{ color: locShared ? C.good : C.teal }}
             >
-              <Pencil size={12} />
-              {t.sos.edit}
+              {locShared ? <Check size={13} /> : <Share2 size={13} />}
+              {locShared ? t.sos.locShared : t.sos.shareLoc}
             </button>
           )}
         </div>
 
-        {editingContact ? (
-          <div className="px-4 py-3 flex flex-col gap-2">
+        {/* Saved contacts — tap a name to make primary; per-contact one-tap call. */}
+        {contacts.length > 0 && (
+          <ul className="divide-y" style={{ borderColor: "#EEF4F3" }}>
+            {contacts.map((c, i) => {
+              const isPrimary = i === 0;
+              return (
+                <li key={c.id} className="px-4 py-2.5 flex items-center gap-3">
+                  <button
+                    onClick={() => setPrimaryContact(c.id)}
+                    className="rounded-lg p-2 shrink-0"
+                    style={{ background: isPrimary ? C.teal : C.tealPale }}
+                    aria-label={t.sos.makePrimary}
+                    title={t.sos.makePrimary}
+                  >
+                    {isPrimary ? (
+                      <Star size={16} style={{ color: "#fff" }} fill="#fff" />
+                    ) : (
+                      <User size={16} style={{ color: C.teal }} />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setPrimaryContact(c.id)}
+                    className="min-w-0 flex-1 text-left"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-semibold truncate" style={{ color: C.dark }}>
+                        {c.name || t.sos.noContact}
+                      </span>
+                      {isPrimary && (
+                        <span
+                          className="text-[10px] font-bold rounded-full px-1.5 py-0.5 shrink-0"
+                          style={{ background: C.tealPale, color: C.teal }}
+                        >
+                          {t.sos.primary}
+                        </span>
+                      )}
+                    </div>
+                    {c.phone && (
+                      <div className="text-xs tabular-nums" style={{ color: C.muted }}>
+                        {c.phone}
+                      </div>
+                    )}
+                    {/* Primary contact carries the live notification status. */}
+                    {isPrimary && contactStatus && (
+                      <div className="mt-0.5">
+                        <span
+                          className="text-[10px] font-bold rounded-full px-2 py-0.5"
+                          style={{ background: contactStatus.pale, color: contactStatus.tone }}
+                        >
+                          {contactStatus.label}
+                          {contactStatus.ago ? ` · ${contactStatus.ago}` : ""}
+                        </span>
+                      </div>
+                    )}
+                  </button>
+                  {c.phone && (
+                    <button
+                      onClick={() => handleCall(c.phone)}
+                      aria-label={`${t.sos.callNow} ${c.name || ""}`.trim()}
+                      className="shrink-0 flex items-center gap-1 rounded-xl px-3 font-bold text-white active:scale-[.97] transition-transform"
+                      style={{ background: C.good, height: 38, fontSize: 13 }}
+                    >
+                      <Phone size={15} />
+                      {t.sos.callNow}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => removeEmergencyContact(c.id)}
+                    aria-label={t.sos.remove}
+                    className="shrink-0 rounded-lg p-1.5 active:scale-90 transition-transform"
+                    style={{ color: C.muted }}
+                  >
+                    <X size={16} />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {/* Add-contact form (auto-open when the list is empty). */}
+        {showAdd ? (
+          <div className="px-4 py-3 flex flex-col gap-2 border-t" style={{ borderColor: "#EEF4F3" }}>
             <Field
               icon={<User size={16} />}
               value={cName}
@@ -259,7 +377,7 @@ export default function SOS() {
               type="tel"
             />
             <button
-              onClick={saveContact}
+              onClick={addContact}
               disabled={!cName.trim() && !cPhone.trim()}
               className="w-full rounded-xl text-white font-semibold active:scale-[.98] transition-transform disabled:opacity-50"
               style={{ background: C.teal, height: 46, fontSize: 14 }}
@@ -268,36 +386,19 @@ export default function SOS() {
             </button>
           </div>
         ) : (
-          <div className="px-4 py-3 flex items-center gap-3">
-            <div className="rounded-lg p-2 shrink-0" style={{ background: C.tealPale }}>
-              <User size={18} style={{ color: C.teal }} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-sm font-semibold truncate" style={{ color: C.dark }}>
-                {emergencyContact?.name || t.sos.noContact}
-              </div>
-              {emergencyContact?.phone && (
-                <div className="text-xs tabular-nums" style={{ color: C.muted }}>
-                  {emergencyContact.phone}
-                </div>
-              )}
-            </div>
-            {/* Notification status — mirrors the timeline's contact step. */}
-            {emergencyContact && contactStatus && (
-              <div className="text-right shrink-0">
-                <span
-                  className="text-[11px] font-bold rounded-full px-2 py-0.5"
-                  style={{ background: contactStatus.pale, color: contactStatus.tone }}
-                >
-                  {contactStatus.label}
-                </span>
-                {contactStatus.ago && (
-                  <div className="text-[10px] mt-0.5" style={{ color: C.muted }}>
-                    {contactStatus.ago}
-                  </div>
-                )}
-              </div>
-            )}
+          <button
+            onClick={() => setShowAdd(true)}
+            className="w-full px-4 py-2.5 flex items-center justify-center gap-1.5 text-xs font-bold border-t active:scale-[.99] transition-transform"
+            style={{ borderColor: "#EEF4F3", color: C.teal }}
+          >
+            <Plus size={14} />
+            {t.sos.addAnother}
+          </button>
+        )}
+
+        {contacts.length > 0 && (
+          <div className="px-4 pb-2.5 pt-1 text-[11px] leading-snug" style={{ color: C.muted }}>
+            {t.sos.contactsHint}
           </div>
         )}
       </section>
