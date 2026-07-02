@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import __version__
 from .config import settings
 from .logging_config import configure_logging
-from .routes import health, identify, summarize
+from .routes import health, hospitals, identify, summarize
 
 configure_logging(settings.log_level)
 logger = logging.getLogger("antidote")
@@ -42,6 +42,7 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(identify.router, prefix="/api")
 app.include_router(summarize.router, prefix="/api")
+app.include_router(hospitals.router, prefix="/api")
 
 
 @app.on_event("startup")

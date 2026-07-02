@@ -54,6 +54,36 @@ class SummarizeResponse(BaseModel):
     source: str = Field(..., description='"gemini" or "fallback".')
 
 
+# ── /api/hospitals ───────────────────────────────────────────────────────────
+class Hospital(BaseModel):
+    """One facility in the live antivenom-stock registry."""
+
+    id: str
+    name: str
+    tier: str = Field(..., description="phc | chc | ah | dh | tertiary")
+    lat: float
+    lng: float
+    vials: int = Field(..., ge=0, description="ASV vials currently in stock.")
+    icu: bool = Field(default=False, description="ICU available.")
+    sector: str = Field(default="govt", description="govt | private")
+    beds: int = Field(default=0, ge=0, description="Emergency beds available.")
+    updated_at: str = Field(..., description="ISO timestamp of the last stock update.")
+
+
+class HospitalsResponse(BaseModel):
+    """The full registry plus a server timestamp for cache-age display."""
+
+    hospitals: list[Hospital]
+    server_time: str = Field(..., description="ISO time the list was served.")
+
+
+class StockUpdateRequest(BaseModel):
+    """An ASHA worker / hospital-staff stock update."""
+
+    vials: int = Field(..., ge=0, description="New ASV vial count.")
+    beds: int | None = Field(default=None, ge=0, description="Optional new bed count.")
+
+
 # ── /health ────────────────────────────────────────────────────────────────
 class HealthResponse(BaseModel):
     """Liveness + whether the proxy is configured to reach Gemini."""
