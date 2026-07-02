@@ -184,6 +184,18 @@ export default function Tracker() {
         level: localLevel,
         aiSeverity: fallbackResponse
       });
+
+      // Enqueue sync action
+      const logIndex = symptomLog.length;
+      import("../lib/sync.js").then(({ enqueueAction }) => {
+        enqueueAction("EVALUATE_SEVERITY", {
+          answers,
+          snake,
+          mins,
+          swelling: answers.swelling,
+          logIndex
+        });
+      });
     } finally {
       setEvaluating(false);
       setFormOpen(false);

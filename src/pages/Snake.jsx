@@ -28,15 +28,15 @@ const LOW_CONFIDENCE = 0.6;
 
 export default function Snake() {
   const navigate = useNavigate();
-  const { language, setSnake } = useEmergency();
+  const { language, snake, snakeImage, setSnake, setSnakeImage } = useEmergency();
   const t = tFor(language);
   const fileRef = useRef(null);
 
-  // All UI state — the image preview never enters context (keeps state light).
-  const [status, setStatus] = useState("idle"); // idle | analyzing | result
-  const [preview, setPreview] = useState(null);
-  const [result, setResult] = useState(null);
-  const [failed, setFailed] = useState(false);
+  // All UI state — the image preview can rehydrate from context
+  const [status, setStatus] = useState(() => (snake ? "result" : "idle")); // idle | analyzing | result
+  const [preview, setPreview] = useState(() => snakeImage);
+  const [result, setResult] = useState(() => snake);
+  const [failed, setFailed] = useState(() => !!(snake && snake.validation_status?.includes("Fallback")));
 
   const onFile = useCallback(
     (e) => {
@@ -47,17 +47,27 @@ export default function Snake() {
       reader.onload = async () => {
         const dataUrl = reader.result;
         setPreview(dataUrl);
+        setSnakeImage(dataUrl);
         setStatus("analyzing");
+        
         const r = await identifySnake(dataUrl);
-        const { _failed, ...snake } = r;
-        setSnake(snake); // write ONLY the snake slice
-        setResult(snake);
+        const { _failed, ...snakeData } = r;
+        
+        setSnake(snakeData);
+        setResult(snakeData);
         setFailed(_failed);
         setStatus("result");
+
+        if (_failed) {
+          // If offline or request failed, queue for background sync when internet returns
+          import("../lib/sync.js").then(({ enqueueAction }) => {
+            enqueueAction("IDENTIFY_SNAKE", { imageB64: dataUrl });
+          });
+        }
       };
       reader.readAsDataURL(file);
     },
-    [setSnake]
+    [setSnake, setSnakeImage]
   );
 
   const clearPhoto = useCallback(() => {
@@ -66,7 +76,8 @@ export default function Snake() {
     setFailed(false);
     setStatus("idle");
     setSnake(null);
-  }, [setSnake]);
+    setSnakeImage(null);
+  }, [setSnake, setSnakeImage]);
 
   const isConfident =
     result && result.confidence >= LOW_CONFIDENCE && result.species !== "Unidentified";
