@@ -105,9 +105,25 @@ export function buildAlertMessage(t, { label, location, mins, severity, summary,
   const coord = location ? `(${location.lat.toFixed(3)}, ${location.lng.toFixed(3)})` : "";
   const place = [label, coord].filter(Boolean).join(" ");
   if (place) lines.push(`📍 ${t.victim}: ${place}`);
+  // A tappable maps link so the recipient can navigate straight to the victim.
+  const link = mapsLink(location);
+  if (link) lines.push(`🗺 ${link}`);
 
   if (summary) lines.push(`📝 ${summary}`);
   if (hospital) lines.push(`🏥 ${t.goHere}: ${hospital.name} · ${hospital.eta} ${t.common.min}`);
 
   return lines.join("\n");
+}
+
+/**
+ * Build a Google Maps link for a {lat,lng} the recipient can tap to navigate.
+ * Returns "" when no location is known so callers can skip the line.
+ * @param {{lat:number,lng:number}|null|undefined} location
+ * @returns {string}
+ */
+export function mapsLink(location) {
+  if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") {
+    return "";
+  }
+  return `https://maps.google.com/?q=${location.lat.toFixed(5)},${location.lng.toFixed(5)}`;
 }

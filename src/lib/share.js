@@ -75,3 +75,47 @@ export async function shareOrCopy({ title, text }) {
   const ok = await copyToClipboard(text);
   return ok ? "copied" : "failed";
 }
+
+/**
+ * Normalise a phone number for a `tel:`/`sms:` URI: keep a leading "+" and
+ * digits only (strips spaces, dashes, parentheses that break some dialers).
+ * @param {string} phone
+ * @returns {string}
+ */
+export function normalizePhone(phone) {
+  if (!phone) return "";
+  const trimmed = String(phone).trim();
+  const plus = trimmed.startsWith("+") ? "+" : "";
+  return plus + trimmed.replace(/[^\d]/g, "");
+}
+
+/**
+ * Place a real phone call by opening a `tel:` URI. Works in the Android WebView
+ * (Capacitor) and on mobile browsers; on desktop it is a no-op-safe navigation.
+ * @param {string} phone
+ * @returns {boolean} whether a dialable number was found
+ */
+export function startCall(phone) {
+  const num = normalizePhone(phone);
+  if (!num) return false;
+  window.location.href = `tel:${num}`;
+  return true;
+}
+
+/**
+ * Open the device SMS composer prefilled with `body`, addressed to `phone`.
+ * Uses the widely-supported `sms:<number>?body=` form (Android/modern browsers).
+ * Returns false when there is nothing to compose so the caller can fall back.
+ * @param {string} phone
+ * @param {string} body
+ * @returns {boolean}
+ */
+export function openSms(phone, body) {
+  const num = normalizePhone(phone);
+  const text = body ? encodeURIComponent(body) : "";
+  if (!num && !text) return false;
+  // "sms:<num>?body=" is understood by Android's default messaging app and by
+  // iOS/most mobile browsers; an empty number still opens the composer.
+  window.location.href = `sms:${num}${text ? `?body=${text}` : ""}`;
+  return true;
+}
