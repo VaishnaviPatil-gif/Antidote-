@@ -19,7 +19,7 @@ const ITEMS = [
   { key: "emergency", to: "/", icon: Siren, group: ["/", "/first-aid", "/snake", "/hospital"] },
   { key: "tracker", to: "/tracker", icon: Activity, group: ["/tracker"] },
   { key: "sos", to: "/sos", icon: Send, group: ["/sos"] },
-  { key: "help", to: "/help", icon: LifeBuoy, group: ["/help"] },
+  { key: "help", to: "/learn", icon: LifeBuoy, group: ["/help", "/learn"] },
 ];
 
 export default function BottomNav() {

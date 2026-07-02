@@ -1,10 +1,9 @@
 import React, { Suspense, lazy, useEffect } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { C, SCREEN_BG } from "./theme.js";
 import { useEmergency } from "./context/EmergencyContext.jsx";
 import Shell from "./components/Shell.jsx";
-import Placeholder from "./components/Placeholder.jsx";
 
 // Real screens are lazy-loaded and swapped in per build step.
 const Home = lazy(() => import("./pages/Home.jsx"));
@@ -64,16 +63,15 @@ export default function App() {
           <Route path="/sos" element={<SOS />} />
           <Route path="/hospital" element={<Hospital />} />
           <Route path="/learn" element={<Learn />} />
-          <Route path="/help" element={<Placeholder screen="help" />} />
         </Route>
 
         {/* Hero — full-bleed, self-contained, reads/writes EmergencyContext */}
         <Route path="/routing" element={<Routing />} />
 
-        {/* Unknown paths fall back to Home */}
-        <Route path="*" element={<Shell />}>
-          <Route path="*" element={<Placeholder screen="home" />} />
-        </Route>
+        {/* Unknown paths (and the legacy /help alias) redirect Home — never a
+            dead-end spinner. Help now lives in the Learn screen (see BottomNav). */}
+        <Route path="/help" element={<Navigate to="/learn" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
   );
